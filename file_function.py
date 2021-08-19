@@ -13,6 +13,9 @@ def save_datas(datas : list, dirname : str, filename : str) -> None:
     if not os.path.exists(f'./DATA/{dirname}'):
         os.mkdir(f'./DATA/{dirname}')
 
+    if os.path.exists(f'DATA/{dirname}/{filename}.txt'):
+        os.remove(f'DATA/{dirname}/{filename}.txt')
+
     with open(f'DATA/{dirname}/{filename}.txt', 'w', encoding='utf-8') as f:
         for data in datas:
             f.write(str(data))
@@ -32,3 +35,4 @@ def read_datas(dirname : str, filename : str) -> list:
         datas_list.append(data)
 
     return datas_list
+

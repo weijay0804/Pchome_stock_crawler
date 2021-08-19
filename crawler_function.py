@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
+from requests.models import Response
+
 
 
 
@@ -91,3 +93,27 @@ def get_balance_sheet(url : str) -> list:
 
     return datas_list2
     
+
+def get_income_statement(url : str) -> list:
+    ''' 獲得損益表的資料 '''
+
+    response = send_request(url)
+
+    # 轉為 BeautifulSoup 物件
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # 取得 table 中的資料
+    datas = soup.find_all('td', class_ = 'ct16')
+
+    data_list = []
+
+    # 依序取出資料
+    for index,data  in enumerate(datas):
+        # 只取 第一欄的資料
+        if index == 0 or index %6 == 0:
+            data_list.append(data.text)
+        else:
+            continue
+
+    return data_list
+
