@@ -10,6 +10,7 @@ import re
 
 
 
+
 def send_request(url : str) -> requests:
     ''' 發送 request '''
 
