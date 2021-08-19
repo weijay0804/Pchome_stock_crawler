@@ -68,6 +68,17 @@ def get_balance_sheet(url : str) -> list:
     # 取得 table 中的資料
     table_datas = soup.find('div', id = 'bttb').find_all('td', class_ = 'ct16')
 
+    # 取得每列標題
+    titles = soup.find('div', id = 'bttb').find_all('td', class_ = 'ct2')
+
+    title_list = []
+
+
+    # 依序取出標題
+    for title in titles:
+        title_list.append(title.text.replace(' ', ''))
+
+
     datas_list = []
 
     # 依序取出資料
@@ -91,7 +102,21 @@ def get_balance_sheet(url : str) -> list:
             datas_list2.append(items)
             items = []
 
-    return datas_list2
+    # 將標題與資料和併
+    data_dict_list = []
+
+    for index, data in enumerate(datas_list2):
+        try:
+            d_dict = {
+                title_list[index] : data
+            }
+
+            data_dict_list.append(d_dict)
+        
+        except IndexError:
+            continue
+
+    return data_dict_list
     
 
 def get_income_statement(url : str) -> list:
@@ -101,6 +126,15 @@ def get_income_statement(url : str) -> list:
 
     # 轉為 BeautifulSoup 物件
     soup = BeautifulSoup(response.text, 'html.parser')
+
+    # 取得每列標題
+    titles = titles = soup.find('div', id = 'bttb').find_all('td', class_ = 'ct2')
+
+    title_list = []
+
+    # 依序取出標題
+    for title in titles:
+        title_list.append(title.text.replace(' ', '').replace('\u3000', ''))
 
     # 取得 table 中的資料
     datas = soup.find_all('td', class_ = 'ct16')
@@ -114,6 +148,19 @@ def get_income_statement(url : str) -> list:
             data_list.append(data.text)
         else:
             continue
+    
+    data_dict_list = []
 
-    return data_list
+    # 將資料與標題合併
+    for index, item in enumerate(data_list):
+        try:
+            d_dict = {
+                title_list[index] : item
+            }
+            data_dict_list.append(d_dict)
+
+        except IndexError:
+            continue
+
+    return data_dict_list
 
