@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
-from requests.models import Response
 
 
 
@@ -31,31 +30,46 @@ def send_request(url : str) -> requests:
     return response
 
 
-def get_stock_numbers() -> list:
-    ''' 取得前 30 家公司的股票代碼 '''
+def get_stock_numbers() -> tuple:
+    ''' 取得公司的股票代碼 '''
 
-    response = send_request('https://pchome.megatime.com.tw/group/mkt0/cid24.html')
-    
-    # 取得股票代碼的正規表達示
-    stock_number_re = re.compile(r'(\d+)')
+    stock_numbner_list = [] # 股票代碼 list
+    company_name_list = []    # 公司名稱 list
 
-    # 轉為 BeautifulSoup 物件
-    soup = BeautifulSoup(response.text, 'html.parser')
+    stock_number_re = re.compile(r'(\d+)')  # 取得股票代碼的正規表達示
 
-    # 取得股票代碼所在的位置
-    datas = data = soup.find('tbody', id='cpidStock').find_all('a')
+    company_name_re = re.compile(r'(\D+)')    # 取得公司名稱的正規表達示
 
-    stock_numbner_list = []
+    # 取得 1 到 3 頁
+    for page in range(1,4):
+        response = send_request(f'https://pchome.megatime.com.tw/group/mkt0/cid24_{page}.html')
+        
+        # 轉為 BeautifulSoup 物件
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-    # 依序取出股票代碼
-    for data in datas:
-        number = stock_number_re.search(data.text)
-        # 如果沒有股票代碼，則跳出並繼續
-        if number is None:
-            continue
-        stock_numbner_list.append(number.group())
+        # 取得股票代碼所在的位置
+        datas = data = soup.find('tbody', id='cpidStock').find_all('a')
 
-    return stock_numbner_list
+        
+        # 依序取出股票代碼
+        for data in datas:
+
+            # 過濾掉不要的資料 並跳出進入下一次迭代
+            if data.text == '加入':
+                continue
+
+            name = company_name_re.search(data.text)   # 取得公司名稱
+            number = stock_number_re.search(data.text)  # 取得股票代碼
+
+            # 如果沒有則跳過 進入下一次迭代
+            if name is None or number is None:
+                continue
+
+            # 將資料儲存到 list 中
+            company_name_list.append(name.group().replace('(','').replace('\u3000', ''))
+            stock_numbner_list.append(number.group())
+
+    return (stock_numbner_list, company_name_list)
 
 def get_balance_sheet(url : str) -> list:
     ''' 取得資產負債表資料 '''
