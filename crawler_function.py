@@ -4,9 +4,12 @@
 
 '''
 
+from typing import List, Tuple
 from bs4 import BeautifulSoup
 import requests
 import re
+
+from requests import api
 
 
 
@@ -178,3 +181,29 @@ def get_income_statement(url : str) -> list:
 
     return data_dict_list
 
+
+def get_financial_ratios(url) -> List:
+    ''' 獲得財務比率的資料 '''
+
+    response = send_request(url)
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # 取得 table 中的資料
+    table_data = soup.find_all('td', class_ = 'ct16')
+
+    # 儲存資料的 list
+    data_list = []
+
+    index_set = set([1, 2, 9, 10, 25, 26])  # 資料在 table 中的位置
+
+    # 依序將資料增加至 list
+    for index, data in enumerate(table_data, 1):
+
+        if index in index_set:
+            try:
+                data_list.append(float(data.text.replace(',','')))
+            except:
+                data_list.append(0)
+        
+    return data_list

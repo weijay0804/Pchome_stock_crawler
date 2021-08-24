@@ -1,7 +1,7 @@
 import time
 
 # --- 自訂函式 ---
-from crawler_function import get_balance_sheet, get_income_statement, get_stock_numbers
+from crawler_function import get_balance_sheet, get_income_statement, get_stock_numbers, get_financial_ratios
 from file_function import save_datas, read_datas
 from export_to_excel import export_income_to_excel
 
@@ -60,7 +60,30 @@ def balance() -> None:
 
     return None
 
+def financial_ratios() -> None:
+    ''' 取得 財務比率 的資料，並存成 txt 檔 '''
+    number_list = read_datas('number', 'stock_number.txt')
+
+    number_list = number_list[0].split('\n')
+
+    for number in number_list:
+        data_list = get_financial_ratios(f'https://pchome.megatime.com.tw/stock/sto2/ock2/sid{number}.html')
+
+        print(data_list)
+        print('------------------')
+
+
+        with open(f'DATA/{number}/financial_ratios.txt', 'w', encoding='utf-8') as f:
+            for data in data_list:
+                f.write(str(data) + '\n')
+            
+
+        time.sleep(3)
+
+    print('Done!')
+
+
 
 if __name__ == '__main__':
-    company_info()
+    financial_ratios()
         
