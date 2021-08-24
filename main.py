@@ -72,16 +72,13 @@ def financial_ratios() -> None:
         print(data_list)
         print('------------------')
 
-
         with open(f'DATA/{number}/financial_ratios.txt', 'w', encoding='utf-8') as f:
             for data in data_list:
                 f.write(str(data) + '\n')
             
-
         time.sleep(3)
 
     print('Done!')
-
 
 
 if __name__ == '__main__':

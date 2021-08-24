@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
+from requests import api
+
 
 def send_request(url : str) -> requests:
     ''' 發送 request '''
