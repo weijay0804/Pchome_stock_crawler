@@ -200,3 +200,59 @@ def export_income_to_excel(seasion : str) -> None:
     workbook.save(f'DATA/income/{seasion}.xlsx')
 
     return None
+
+
+def export_financial_ratios_to_excel() -> None:
+    ''' 將財務比率資料整理成 excle 資料 並匯出 '''
+
+    # 取得股票代碼
+    number_list = read_datas('number', 'stock_number.txt')
+
+    number_list = number_list[0].split('\n')
+
+    # 取得公司名稱
+    title_list = read_datas('name', 'stock_name.txt')
+
+    title_list = title_list[0].split('\n')
+
+    # 使用股票代碼依序讀取 財務比率資料
+    for index, number in enumerate(number_list):
+        # 第一列資料
+        row1 = ['2021Q1', '2021Q2']
+
+        # 將 公司名稱 股票代碼 加入到第一列資料
+        row1.insert(0, title_list[index] + number)
+
+        # 讀取 財務比率資料
+        data_list = read_datas(str(number), 'financial_ratios.txt')
+
+        # 整理 財務比率 資料
+        data_list = data_list[0].split('\n')[:-1]
+        data_list = [float(data) for data in data_list]
+        data_list.insert(0, '營業毛利率')
+        data_list.insert(3, '營業利益率')
+        data_list.insert(6, '稅後淨利率')
+        
+        # 將不同資料分成不同 list 以便後續寫入 excel
+        GP_list = data_list[:3]
+        OPM_list = data_list[3:6]
+        NPM_list = data_list[6:]
+
+        # 建立 Workbook 物件，並將資料寫入 excel
+        workbook = openpyxl.Workbook()
+        sheet1 = workbook.worksheets[0]
+
+        # 設定欄寬 列高
+        sheet1.column_dimensions['A'].width = 20
+        sheet1.row_dimensions[1].height = 20
+
+        # 寫入資料到 excel
+        sheet1.append(row1)
+        sheet1.append(GP_list)
+        sheet1.append(OPM_list)
+        sheet1.append(NPM_list)
+
+        # 匯出 excel 檔案
+        workbook.save(f'DATA/{number}/financial_ratios.xlsx')
+    
+    return None
